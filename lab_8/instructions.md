@@ -25,7 +25,7 @@ To verify the functionality of the three different table loading, try:
 
 ## Expected Results
 
-The CPI database from the January 2024 has 924 rows while the newer February 2025 vintage has 937 rows). Resulting operations alter each table significantly:
+The CPI database from the January 2024 has 924 rows while the newer February 2025 vintage has 937 rows. Operations alter each table significantly:
 
 * **Row Counts**: 
   * `cpi_append` grows to 1,861 rows (924 + 937)
@@ -35,3 +35,9 @@ The CPI database from the January 2024 has 924 rows while the newer February 202
   * **Append** blindly copies all new data below the old  data. 
   * **Truncate** perfectly guarantees accuracy because it  wipes out the old table and re-installs the newest incoming CSV cleanly. 
   * **Incremental** merges the tables securely by locating matching 'DATE' values and overriding older numbers with the brand-new values from 2025, leaving unchanged history completely intact. 
+
+* **Discussion**:
+
+  * **Append** If we use append, we end up with 1,861 rows. For the data from 1947 to 2023, we will have two completely conflicting rows per date in our database. This will require SQL code to sort out and get only newest data.     
+  * **Truncate** It could be computationally expensive for large datasets to constantly delete and add new data.
+  * **Incremental** Requires a perfect "Primary Key" like date in this case. If not, it will be hard to map and refresh data accordingly. However, computationally efficient.
